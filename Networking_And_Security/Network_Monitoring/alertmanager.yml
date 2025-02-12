@@ -1,0 +1,31 @@
+global:
+  resolve_timeout: 5m
+  slack_api_url: 'https://hooks.slack.com/services/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'
+
+route:
+  receiver: 'email-receiver'
+  routes:
+    - receiver: 'slack-alerts'
+      group_wait: 10s
+      group_interval: 5m
+      repeat_interval: 3h
+      matchers:
+        - severity="critical"
+
+receivers:
+  - name: 'email-receiver'
+    email_configs:
+      - to: 'dshonack@ucsc.edu'
+        from: 'mclemon333@gmail.com'
+        smarthost: 'smtp.gmail.com:587'
+        require_tls: true
+        auth_username: 'mclemon333@gmail.com'
+        auth_password: 'my_password -.-'
+        send_resolved: true
+
+  - name: 'slack-alerts'
+    slack_configs:
+      - channel: '#security-alerts'
+        send_resolved: true
+        title: "🚨 Prometheus Alert:"
+        text: "ALERT"

@@ -1,0 +1,122 @@
+groups:
+  - name: DoS_Detection
+    rules:
+        # fine tuned this value due to the fact my machine and promethues would stop responding, and would not pend or fire at anything over 1k
+      - alert: HighNetworkTraffic
+        expr: rate(node_network_receive_packets_total{device="wlan0"}[1m]) > 200
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "High Network Traffic Detected"
+          description: "Incoming traffic greater 200"
+
+      # Changed the time it takes for a conditoin to be met due to inconsistent behvior causing drops 
+      - alert: HighHTTPRequests
+        expr: rate(promhttp_metric_handler_requests_total{code="200"}[1m]) > 100
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "High HTTP Request Rate"
+          description: "HTTP request rate greater then 100 requests per second"
+      #Changed this metric to 0.85 due to the fact that 0.9 is a bit high 
+      - alert: HighCpuUsage
+        expr: rate(node_schedstat_running_seconds_total[1m])*100 > 85
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "CPU usage is greater than 85%"
+          description: "CPU usage exceeded 85%"
+
+      # This config will check if the thermal temp is greater then 80C which may indicate a lack of thermal paste, replacement, malware, or odd behvior that may need further investigation
+      - alert: HighCpuTemp
+        expr: rate(node_hwmon_temp_celsius{chip="thermal_thermal_zone0",sensor="temp0"}[1m]) > 80
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "CPU usage is greater than 85% over 5 seconds"
+          description: "CPU usage exceeded 85% in user mode for 5 seconds."
+
+      - alert: HighHTTPRequestOver5m
+        expr: rate(promhttp_metric_handler_requests_total[5m]) > 1000
+        for: 10s
+        labels:
+          severity: high
+        annotations:
+          summary: "High HTTP Request Rate Over 5 Minutes"
+          description: "HTTP request rate greater then 1000 per minute"
+
+      - alert: HTTPRequestErrorCode5xx
+        expr: rate(promhttp_metric_handler_requests_total{status=~"5.."}[5m]) > 30
+        for: 10s
+        labels:
+          severity: high
+        annotations:
+          summary: "High 5xx HTTP Error Rate"
+          description: "Rate of HTTP 5xx status codes greater then 30"
+
+      - alert: AuthenticationFailures
+        expr: rate(authentication_failures_total[1m]) > 10
+        for: 10s
+        labels:
+          severity: high
+        annotations:
+          summary: "High Authentication Failure Rate"
+          description: "Rate of authentication failures greater then 10 over 1 min"
+
+      # This configuration will check for the load on a machine and is useful to let the controller know the stress on a machine and could indicate malware, misconfigurations things of that sort 
+      - alert: HighSystemLoads
+        expr: avg(rate(node_load1[1m])) > 1.5
+        for: 10s
+        labels:
+          severity: high
+        annotations:
+          summary: "High system load detected"
+          description: "The system load is 1.5 over the last minute."
+
+      # This config checks for high TCP retransmission rates, and this is useful due 
+      - alert: HighTCPRetransmissions
+        expr: rate(node_netstat_Tcp_RetransSegs[1m]) > 100
+        for: 10s
+        labels:
+          severity: high
+        annotations:
+          summary: "High number of TCP retransmissions"
+          description: "The number of TCP retransmissions is greater then 100 in the last minute."
+
+      # This config checks for high network congestions due to high transmission rates
+      - alert: High Network congestion
+        expr: rate(node_network_transmit_time_seconds{device="wlan0"}[1m]) > 0.3
+        for: 10s
+        labels:
+          severity: high
+        annotations:
+          summary: "High network Congestion"
+          description: "Long transmit time could indicate network congestion"
+
+      # This config checks for high udp datagram rates which could indicate a Udp flood 
+      - alert: HighUDPDdatagrams
+        expr: rate(node_netstat_Udp_InDatagrams[1m]) > 1000
+        for: 10s
+        labels:
+          severity: high
+        annotations:
+          summary: "High number of UDP datagrams"
+          description: "The number of incoming UDP datagrams greater then 1000."
+
+      # This config could indicate errors in the implementation or tcp syn attacs
+      - alert: HighTCPSynRetransmissions
+        expr: rate(node_netstat_TcpExt_TCPSynRetrans[1m]) > 100
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "High number of TCP SYN retransmissions"
+          description: "The number of TCP SYN retransmissions has exceeded 100 in the last 5 minutes."
+
+
+
+
