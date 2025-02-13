@@ -54,35 +54,35 @@ This helped determine whether Prometheus was effective in detecting and alerting
 ## Results and Conclusion 
 
 
-After performing a **DoS attack on my Raspberry Pi 4**, I observed the following:  
+After performing a DoS attack on my Raspberry Pi 4, I observed the following:  
 
-- Alerts took anywhere from **30 to 90 seconds** to transition from a `"pending"` state to `"firing."`  
-- Once firing, alerts appeared on **Slack within 30 to 90 seconds**, while **email alerts had an additional 2-minute delay**.  
-- My **evaluation interval** was set to **10 seconds**, and my **scrape interval** was **15 seconds**.  
+- Alerts took anywhere from 30 to 90 seconds to transition from a `"pending"` state to `"firing."`  
+- Once firing, alerts appeared on Slack within 30 to 90 seconds, while email alerts had an additional 2-minute delay.  
+- My evaluation interval was set to 10 seconds, and my scrape interval was 15 seconds.  
 
-### **Inconsistent Behavior**  
-I noticed **irregular alert behavior**, where:  
-- Sometimes an alert would trigger correctly, but after **3–5 evaluations**, it would revert to `"pending"` or fail to register entirely.  
-- This could be due to **misconfiguration** or **system limitations**.  
+### Inconsistent Behavior 
+I noticed irregular alert behavior, where:  
+- Sometimes an alert would trigger correctly, but after 3–5 evaluations, it would revert to `"pending"` or fail to register entirely.  
+- This could be due to misconfiguration or system limitations.  
 
-### **Latency and System Limitations**  
-A key limitation I observed was **latency**. Large-scale DoS attacks could:  
-- **Overwhelm Prometheus' ability to scrape data**, especially on a **lightweight system like the Raspberry Pi 4**.  
-- Result in **missing or delayed alerts**, reducing effectiveness.  
+### Latency and System Limitations  
+A key limitation I observed was latency. Large-scale DoS attacks could:  
+- Overwhelm Prometheus' ability to scrape data, especially on a lightweight system like the Raspberry Pi 4.  
+- Result in missing or delayed alerts, reducing effectiveness.  
 
-### **Conclusion**  
-While **Prometheus did detect DoS attacks**, the **latency issue** is a **significant concern**. In a real-world scenario:  
-- **Rapid detection and prevention** are critical for **maintaining system availability**.  
-- If integrated with an **Intrusion Prevention System (IPS)**, delays or inconsistent metrics could be **detrimental**.  
+### Conclusion  
+While Prometheus did detect DoS attacks, the latency issue is a significant concern. In a real-world scenario:  
+- Rapid detection and prevention are critical for maintaining system availability.  
+- If integrated with an Intrusion Prevention System (IPS), delays or inconsistent metrics could be detrimental.  
 
-### **Final Thoughts**  
-✅ **Pros**:  
+### Final Thoughts  
+✅ Pros:  
 ✔️ Easy to set up  
 ✔️ Provides valuable system metrics  
 
-⚠️ **Cons**:  
+⚠️ Cons:  
 ❌ Overhead and latency in metric collection  
 ❌ Requires a more powerful system for real-time DoS detection  
 
-Would I recommend Prometheus for **real-time DoS detection**?  
-**Possibly, but only with proper tuning and sufficient hardware resources.**  
+Would I recommend Prometheus for real-time DoS detection?  
+Possibly, but only with proper tuning and sufficient hardware resources.  
