@@ -10,7 +10,7 @@ Raspberry Pi 4 (Node Exporter) → Laptop (Prometheus)
 
 ## Procedure 
 
-#  - alert_rules.yml 
+### alert_rules.yml 
 
     -  This file contains all the rules for detection for example: 
     
@@ -27,13 +27,13 @@ Raspberry Pi 4 (Node Exporter) → Laptop (Prometheus)
 
       Typically the metrics for evaluation are written as some value over 1 minutes, then transformed into that value per second then compared
       
-#  - alertmanager.yml
+### alertmanager.yml
 
     - This file will contain all alert managing applications, the ones I included: 
       - Slack Channel 
       - Email
     
-#  - prometheus.yml 
+### prometheus.yml 
 
     -  This file contains alertmanager config, alert_rules config, information about the target to scrape 
 
