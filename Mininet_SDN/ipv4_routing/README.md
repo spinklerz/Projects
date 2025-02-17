@@ -22,6 +22,12 @@ The network consists of:
   - **Trusted Host:** `h_trust`
   - **Untrusted Host:** `h_untrust`
   - **LLM Server:** `h_server`
+  
+## Network Topology
+
+Below is a visual representation of the Mininet and POX-based SDN topology:
+
+![Mininet SDN Topology](images/topology.png)
 
 ## Flow Rules Implemented
 - **ARP requests** are flooded to allow host discovery.
