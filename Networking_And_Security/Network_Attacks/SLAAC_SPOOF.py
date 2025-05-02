@@ -16,7 +16,7 @@ from scapy.all import sr1, IP, ICMP
 # Assume RA is not enabled on the target network this should work
 # First the script will query to find all routers on the network via NDP_RS(Router Solicitation)
 # Once routers are spotted we will kick them off by sending a spoofed NDP_RA(Router Advertisement)
-# With a TTL of 0 essintially making them unreachable and booting that router
+# With a router lifetime of 0 essintially making them unreachable and booting that router (well see if it works)
 # Now we can simulate a evil twin like attack and send Router advertisements of our own!
 # This script will put us in the middle!
 
