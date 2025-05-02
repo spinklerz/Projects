@@ -1,5 +1,4 @@
 import scapy
-import pcapy 
 import netifaces
 import threading 
 import time 
@@ -136,8 +135,6 @@ Returns: None
 
 
 def packet_analyzer(packet):
-
-
 	# We want to intercept and extract: 
 	dst_mac 	= ""
 	dst_ip 		= ""
