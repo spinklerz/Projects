@@ -9,13 +9,6 @@ from scapy.all import *
 
 attacker_mac = ""
 hackedMachines = []
-
-# ***** Notes on packet listening using pcapy *****
-# -------- replace device to interface of choice -----------
-# devs = pcapy.findalldevs()
-# print(devs)
-
-
 '''
 ### Step 1: Setting up everything
 
@@ -149,20 +142,6 @@ def packet_analyzer(packet):
 	for ipv, macv in hackedMachines:  
 		if ipv == dst_ip: 
 	   		os.system("echo 1 > /proc/sys/net/ipv4/ip_forward") # Recieved this from Scapy tutorial https://0xbharath.github.io/art-of-packet-crafting-with-scapy/index.html a scapy tutorial
-	   		
-	'''
-	    	if src_mac == macv and dst_mac == attacker_mac: 
-	    		packet[Ether].dst = getMacAddress(src_ip)
-	    		packet[Ether].src = attacker_mac
-	    		sendp(packet)
-	    		break
-	    	if dst_mac == attacer_mac and ipv == dst_ip: 
-	    		packet[Ether].dst = macv
-	    		packet[Ether].src = attacker_mac
-	    		sendp(packet)
-	    		break
-	 '''
-	 
 	return None
 	
 	
