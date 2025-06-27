@@ -36,6 +36,7 @@ def is_valid_port(port):
             print(" \t\t\tPort should be between 0 and 65535\n")
             exit(1)
     return valid_ports
+    
 def teardown(target_ip_address, scan_ports):
     rst_pkt = scapy.IP(dst=target_ip_address)/scapy.TCP(dport=int(scan_ports), flags="R") # RST packet
     send(rst_pkt,verbose=0)
@@ -143,7 +144,7 @@ if __name__ == "__main__":
     print()
 
     # validating scan type
-    if scan_type not in ["syn_scan", "ack_scan", "fin_scan", "xmas_scan", "tcp_connect_scan"]:
+    if scan_type not in ["syn_scan"]:
         print("Invalid scan type")
         exit(1)
     if not (is_valid_ip(target_ip_address)):
