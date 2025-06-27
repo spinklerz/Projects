@@ -118,11 +118,43 @@ These attacks are strictly meant for educational purposes and are meant to demon
 
   - Could configure sources to only accept RAs from trusted sources
 
+## Volumetric DoS
+
+- UDP/TCPSYN flood
+
+- Example: python3 Volumetric_DoS.py -t target_ip -f UDP
+
+- Functionality:
+
+  - Very simple I create a packet and "push it over "there"—Patrick Star.
+
+  - Spoofed IP to mask the user
+
+  - On a local network I send it using L3 so you will be mapped via MAC address. I did include a function for this but did not implement it yet.
+
+- Effectiveness
+
+  - Quite ineffective against any modern devices
+
+  - Dst port 53 for UDP floods seems to be the most effective for DNS resolution.
+
+- Concern
+
+  - Very loud technique and is very easily spotted but can be difficult to deal with depending on the scale
+
+  - You can't just block IPs.
+
+- Solution
+
+  - Dynamic firewalls, IDS, behavioral analysis, and NGFW can be great defenses against DoS floods.
+
+  - TCP cookies are very effective in stopping TCP SYN floods as they don't reserve connection space immediately and keep these open connections in a storage-like cache. And the server will encode data into the SYN ACK sequence number. And what this does is that for any legitimate connection, it will have the correctly incremented value.
+
 ## Recon L3 Scanner
 
 - Simple TCP Syn Scanner
 
-  - Example: python3 network_scanner.py -t 192.168.1.1 -s syn_scan -F
+  - Example: python3 network_scanner.py -t target_ip -s syn_scan -F
 
   - Functionality:
 
