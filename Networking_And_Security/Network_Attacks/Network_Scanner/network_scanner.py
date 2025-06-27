@@ -1,14 +1,17 @@
 import argparse
 import ipaddress
 import scapy.all as scapy
+from scapy import *
 import concurrent.futures
+import random 
+from tqdm import tqdm
+import time
 
 R = "\033[91m"  # Red text
 W = "\033[0m"   # Reset to default
 G = "\033[92m"  # Green text
 
-# validating target ip address
-
+# Checking if IP is valid
 def is_valid_ip(address):
     try:
         ipaddress.ip_address(address)
@@ -35,7 +38,7 @@ def is_valid_port(port):
     return valid_ports
 
 # SYN Scan
-def SYN_SCAN(network_interface, target_ip_address, scan_ports, verbose=False):
+def SYN_SCAN( target_ip_address, scan_ports, verbose=False):
     syn_pkt = scapy.IP(dst=target_ip_address)/scapy.TCP(dport=int(scan_ports), flags="S") # SYN packet
 
     response = scapy.sr1(syn_pkt, timeout=1, verbose=0) # send packet and wait for response
@@ -78,13 +81,18 @@ def log_scan_results(port, result, verbose):
             print(f"{R}Port {port} is closed (RST + ACK flag){W}\n")
 
 # Parallel scan
-def parrallel_scan(target_ip_address, scan_ports_range, network_interface, verbose):
+def parrallel_scan(target_ip_address, scan_ports_range, threads, verbose):
     # Wrapper function for scanning and logging results
-    with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
-        results = executor.map(
-            lambda port: SYN_SCAN(network_interface, target_ip_address, port, verbose), 
+    with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
+        results = list(tqdm(executor.map(
+            lambda port: SYN_SCAN( target_ip_address, port, verbose), 
             scan_ports_range
-        )
+        ),
+        total=len(scan_ports_range),
+        desc="Scanning ports",
+        unit="ports",
+        unit_scale=True
+    ))
     for port, result in zip(scan_ports_range, results):
         log_scan_results(port, result, verbose) 
     return 0 # Success
@@ -93,24 +101,40 @@ if __name__ == "__main__":
     # Get arguements from command line
     parse = argparse.ArgumentParser(description="Port Scanner")
 
-    parse.add_argument("-i", "--network_interface",	help="network interface to be used") 				                            # network interface
-    parse.add_argument("-t", "--target_ip_address",	help="target ip address to scan ") 				                                # target ip address 
-    parse.add_argument("-p", "--scan_ports", 		help="ports to be scanned example -p 21,22")			                        # ports to be scanned
-    parse.add_argument("-s", "--scan_type",         help="scan type [syn_scan, ack_scan, fin_scan, xmas_scan, tcp_connect_scan]")	# scan type
-    parse.add_argument("-v", "--verbose",           help="verbose mode", action="store_true")			                            # verbose mode
+    parse.add_argument("-t", "--target_ip_address",	                    help="target ip address to scan ", required=True) 				                                # target ip address 
+    parse.add_argument("-p", "--scan_ports", 		                    help="By default:65535 ports to be scanned example -p 21,22", required=False)			        # ports to be scanned
+    parse.add_argument("-s", "--scan_type",                             help="scan type [syn_scan] planned [idle_scan, ]", required=True)	# scan type
+    parse.add_argument("-T", "--threads",                               help="set number of threads (Default: 100)", required=False)			                        # Threads
+    parse.add_argument("-F", '--fast-scan', action='store_true',          help="Set ports to the 15 most commonly used", required=False)
+    parse.add_argument("-v", "--verbose",                               help="verbose mode", action="store_true", required=False)			                            # verbose mode
 
     args 			    = parse.parse_args()
-    network_interface 	= args.network_interface
     target_ip_address 	= args.target_ip_address
     scan_ports 		    = args.scan_ports
     scan_type 		    = args.scan_type
+    fast_scan           = args.fast_scan
     verbose 		    = args.verbose          
 
     print("############################## Arguments ##############################\n")
-    print("Network Interface: ", 	network_interface)
     print("Target IP: ", 		    target_ip_address)
-    print("Ports to scan: ", 	    scan_ports)
+    if fast_scan: 
+        scan_ports_range = [20,21,22,25,53,67,68,69,80,445,443,169,123,110,143,993,995,3306,3389,8080,389,636]
+        print(f'Ports to scan: {scan_ports_range}')
+    elif scan_ports:
+        scan_ports_range = is_valid_port(scan_ports.split(","))
+        print("Ports to scan: ", 	    scan_ports)
+
+    else: 
+        print("Ports to scan: 1 - 65535")
+        scan_ports_range = (list(range(0, 65536)))
+        random.shuffle(scan_ports_range)
+    if args.threads is None:
+        threads = 100
+    else:
+        threads = int(args.threads)
+    
     print("Scan types: ", 		    scan_type)
+    print("Threads: ", threads)
     print()
 
     # validating scan type
@@ -121,13 +145,7 @@ if __name__ == "__main__":
         print(R, "Invalid IP address", W)
         exit(1)
 
-    if not scan_ports:
-        scan_ports_range = list(range(0, 65536))
-    else:
-        scan_ports_range = is_valid_port(scan_ports.split(","))
-
-    print(scan_ports_range)
     if scan_type == "syn_scan":
         print("############################## Starting SYN SCAN ##############################\n")
-        print(parrallel_scan(target_ip_address, scan_ports_range, network_interface, verbose))
-        print("\n############################## Ending SYN SCAN ##############################\n")
+        parrallel_scan(target_ip_address, scan_ports_range, threads, verbose)
+        print("############################## Ending SYN SCAN ##############################\n")
