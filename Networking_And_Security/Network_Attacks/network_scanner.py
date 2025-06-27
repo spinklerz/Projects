@@ -108,7 +108,7 @@ if __name__ == "__main__":
 
     parse.add_argument("-t", "--target_ip_address",	                    help="target ip address to scan ", required=True) 				                                # target ip address 
     parse.add_argument("-p", "--scan_ports", 		                    help="By default:65535 ports to be scanned example -p 21,22", required=False)			        # ports to be scanned
-    parse.add_argument("-s", "--scan_type",                             help="scan type [syn_scan] planned [idle_scan, ]", required=True)	# scan type
+    parse.add_argument("-s", "--scan_type",                             help="scan type [syn_scan] ", required=True)	# scan type
     parse.add_argument("-T", "--threads",                               help="set number of threads (Default: 100)", required=False)			                        # Threads
     parse.add_argument("-F", '--fast-scan', action='store_true',          help="Set ports to the 15 most commonly used", required=False)
     parse.add_argument("-v", "--verbose",                               help="verbose mode", action="store_true", required=False)			                            # verbose mode
