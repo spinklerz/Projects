@@ -22,7 +22,7 @@ These attacks are strictly meant for educational purposes and are meant to demon
 
 ### ARP poison
 
-- Example usage: ─$ sudo python3 arp.py -t target_ip -g 192.168.1.1 -i eth0
+- Example usage: sudo python3 arp.py -t target_ip -g 192.168.1.1 -i eth0
 
 - Functionality:
 
@@ -44,7 +44,7 @@ These attacks are strictly meant for educational purposes and are meant to demon
 
   - Captures the packets, and the target has no idea.
 
-- Concern
+- Concern:
 
   - In local networks this attack can be very effective due to the lack of security controls and the lack of authentication in general.
 
@@ -72,7 +72,7 @@ These attacks are strictly meant for educational purposes and are meant to demon
 
   - Sends DHCP requests with a spoofed MAC address
 
-- Concern
+- Concern:
 
   - At my roommate's apartment, the cheap router we got from Xfinity had no defense against this.
 
@@ -117,3 +117,41 @@ These attacks are strictly meant for educational purposes and are meant to demon
   - IPv6 source guard, which validates IPv6 addresses with their binding tables
 
   - Could configure sources to only accept RAs from trusted sources
+
+## Recon L3 Scanner
+
+- Simple TCP Syn Scanner
+
+  - Example: python3 network_scanner.py -t 192.168.1.1 -s syn_scan -F
+
+  - Functionality:
+
+  - Port scanning works by measuring the type of response.
+
+  - In this case we use TCP SYN to scan a network.
+
+  - How this works:
+
+    - Send the target a TCP SYN on some port.
+
+    - Open Port: If the target responds with an ACK flag.
+
+    - Closed Port: if the target responds with an RST flag or ACK + RST flag
+
+    - Filtered Port: If we get no response from the target
+
+  - Effectiveness
+
+  - SYN scans are a go-to port scanning technique due to how stealthy and effective they are.
+
+  - The reason it's stealthy is because when an open port is received, an RST flag is sent right after tearing down the connection. So that the connection will not get logged due to the lack of "connection." Connection is not established.
+
+- Concern:
+
+  - Port scanning is usually an attacker bread and butter, it is used to identify services, version number, and even potential vulnerabilties.
+
+  - It's also important to note that the cost of logging all network traffic on a machine can cause extensive resource overhead.
+
+- Solution:
+  - Although difficult to detect IDS/IPS systems can still detect this type of probing.
+  - Firewalls are the most common defense, depending on the type of service you are running can greatly improve or reduce detection abilities.
