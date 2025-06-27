@@ -96,7 +96,7 @@ These attacks are strictly meant for educational purposes and are meant to demon
 
   - The attack starts with identifying all the gateways on the network via ping.
 
-  - Then sends out a Neighbor Solicitation (NS) message to get details on the router like its MAC and IP.
+  - Then sends out a Neighbor Solicitation (NS) message to get details on the router like its MAC.
 
   - There are 3 active threads on this attack:
 
@@ -108,7 +108,7 @@ These attacks are strictly meant for educational purposes and are meant to demon
 
 - Concern:
 
-  - For my local network, having 0 auth for things like router advertisements can cause many issues, like trusting an attacker's machine to act as the router and telling other machines to override the current TTL of a router and set it to 0.
+  - For my local network, having 0 auth for things like router advertisements can cause many issues, like trusting an attacker's machine to act as the router and telling other machines to override the current TTL of a router and set it to 0. Although I will say that sending out RS packets had little or no influence on when a router would send a RA.
 
 - Solution
 
