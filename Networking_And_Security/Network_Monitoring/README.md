@@ -85,4 +85,4 @@ While Prometheus did detect DoS attacks, the latency issue is a significant conc
     Requires a more powerful system for real-time DoS detection  
 
 Would I recommend Prometheus for real-time DoS detection?  
-Possibly, but only with proper tuning and sufficient hardware resources. As for my setup response times may vary from minutes to several minutes to never.   
+Possibly, but only with proper tuning and sufficient hardware resources. As for my setup response times may vary from minutes to several minutes to never. For in production and hardware monitoring it can be great tool! 
