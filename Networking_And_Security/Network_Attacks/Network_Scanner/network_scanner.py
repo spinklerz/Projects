@@ -38,7 +38,7 @@ def is_valid_port(port):
     return valid_ports
 def teardown(target_ip_address, scan_ports):
     rst_pkt = scapy.IP(dst=target_ip_address)/scapy.TCP(dport=int(scan_ports), flags="R") # RST packet
-    send(rst_pkt,verbose=1)
+    send(rst_pkt,verbose=0)
     pass
 
 # SYN Scan
