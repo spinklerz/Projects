@@ -1,7 +1,7 @@
 import argparse
 import ipaddress
-import scapy.all as scapy
-from scapy import *
+from scapy import all as scapy
+from scapy.all import send
 import concurrent.futures
 import random 
 from tqdm import tqdm
@@ -36,6 +36,10 @@ def is_valid_port(port):
             print(" \t\t\tPort should be between 0 and 65535\n")
             exit(1)
     return valid_ports
+def teardown(target_ip_address, scan_ports):
+    rst_pkt = scapy.IP(dst=target_ip_address)/scapy.TCP(dport=int(scan_ports), flags="R") # RST packet
+    send(rst_pkt,verbose=1)
+    pass
 
 # SYN Scan
 def SYN_SCAN( target_ip_address, scan_ports, verbose=False):
@@ -50,6 +54,7 @@ def SYN_SCAN( target_ip_address, scan_ports, verbose=False):
                 ## SYN(S) is a synchronization flag, which is used 
                 ## to synchronize sequence numbers to initiate a connection.
                 ## Which means that the server is ready to initiate a connection.
+            teardown(target_ip_address, scan_ports)
             return 1
         elif response[scapy.TCP].flags == 'RA': # port is closed via RST flag and ACK flag
             # What is RA flag? RST(R) + ACK(A)
