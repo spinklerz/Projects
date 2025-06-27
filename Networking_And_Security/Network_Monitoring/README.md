@@ -76,13 +76,13 @@ While Prometheus did detect DoS attacks, the latency issue is a significant conc
 - If integrated with an Intrusion Prevention System (IPS), delays or inconsistent metrics could be detrimental.  
 
 ### Final Thoughts  
-✅ Pros:  
-✔️ Easy to set up  
-✔️ Provides valuable system metrics  
+    Pros:  
+    Easy to set up  
+    Provides valuable system metrics  
 
-⚠️ Cons:  
-❌ Overhead and latency in metric collection  
-❌ Requires a more powerful system for real-time DoS detection  
+    Cons:  
+    Overhead and latency in metric collection  
+    Requires a more powerful system for real-time DoS detection  
 
 Would I recommend Prometheus for real-time DoS detection?  
-Possibly, but only with proper tuning and sufficient hardware resources.  
+Possibly, but only with proper tuning and sufficient hardware resources. As for my setup response times may vary from minutes to several minutes to never.   
