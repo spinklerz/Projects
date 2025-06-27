@@ -72,13 +72,13 @@ A key limitation I observed was latency. Large-scale DoS attacks could:
 
 ### Conclusion  
 While Prometheus did detect DoS attacks, the latency issue is a significant concern. In a real-world scenario:  
-- Rapid detection and prevention are critical for maintaining system availability.  
-- If integrated with an Intrusion Prevention System (IPS), delays or inconsistent metrics could be detrimental.  
+- Rapid detection and prevention are essential for availability.  
+- If integrated with an Intrusion Prevention System (IPS), delays or inconsistent metrics need to be accounted for.  
 
 ### Final Thoughts  
     Pros:  
-    Easy to set up  
-    Provides valuable system metrics  
+    Easy to set up 
+    Provides valuable system metrics
 
     Cons:  
     Overhead and latency in metric collection  
