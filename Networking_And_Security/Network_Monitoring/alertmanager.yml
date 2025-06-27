@@ -1,6 +1,6 @@
 global:
   resolve_timeout: 5m
-  slack_api_url: 'https://hooks.slack.com/services/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'
+  slack_api_url: 'real_web_hook!'
 
 route:
   receiver: 'email-receiver'
@@ -15,11 +15,11 @@ route:
 receivers:
   - name: 'email-receiver'
     email_configs:
-      - to: 'dshonack@ucsc.edu'
-        from: 'mclemon333@gmail.com'
+      - to: 'myemail'
+        from: 'email'
         smarthost: 'smtp.gmail.com:587'
         require_tls: true
-        auth_username: 'mclemon333@gmail.com'
+        auth_username: 'email'
         auth_password: 'my_password -.-'
         send_resolved: true
 
