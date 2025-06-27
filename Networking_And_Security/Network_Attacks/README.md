@@ -126,11 +126,11 @@ These attacks are strictly meant for educational purposes and are meant to demon
 
 - Functionality:
 
-  - Very simple I create a packet and "push it over "there"—Patrick Star.
+  - Very simple, this script creates many packets and sends them to a machine in hopes it overwhelms.
 
   - Spoofed IP to mask the user
 
-  - On a local network I send it using L3 so you will be mapped via MAC address. I did include a function for this but did not implement it yet.
+  - On a local network I send it using L3 so you will be mapped via MAC address.
 
 - Effectiveness
 
@@ -146,7 +146,7 @@ These attacks are strictly meant for educational purposes and are meant to demon
 
 - Solution
 
-  - Dynamic firewalls, IDS, behavioral analysis, and NGFW can be great defenses against DoS floods.
+  - Dynamic firewalls, IDS, behavioral analysis, and NGFW can be great defenses against DoS floods. Third party services like cloudflare or other CDN's excel in this type of detection and prevention.
 
   - TCP cookies are very effective in stopping TCP SYN floods as they don't reserve connection space immediately and keep these open connections in a storage-like cache. And the server will encode data into the SYN ACK sequence number. And what this does is that for any legitimate connection, it will have the correctly incremented value.
 
