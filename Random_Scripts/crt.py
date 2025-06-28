@@ -16,7 +16,6 @@ def main():
     This Function will query crt.sh and parse it for subdomains
     Key Notes:
         - Simple Implementation for single queries
-        - Large domain List implementation, inspired by map reduce, divide workers to parse large domain file and to do there own thang
     '''
     args = parse_arguments()
     
@@ -27,7 +26,7 @@ def main():
     if args.domain: 
         r = requests.get(f'https://crt.sh/json?q={args.domain}')
         data = r.json()
-        print(data)
+        # print(data)
         domain_list = set()
         for item in data:
             domain_list.add(item['common_name'])
